@@ -63,10 +63,10 @@ await Product.insertMany([
 //categorias
 await Category.deleteMany()
 await Category.insertMany([
-  { name: 'Urbano', order: 1 },
-  { name: 'Running', order: 2 },
-  { name: 'Botas', order: 3 },
-  { name: 'Casual', order: 4 }
+  { name: 'Urbano', slug: 'urbano', order: 1 },
+  { name: 'Running', slug: 'running', order: 2 },
+  { name: 'Botas', slug: 'botas', order: 3 },
+  { name: 'Casual', slug: 'casual', order: 4 }
 ])
 console.log('✅ Categorías creadas')
 
