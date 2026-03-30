@@ -20,14 +20,17 @@ export const getSettings = async (req, res) => {
 
 export const updateSettings = async (req, res) => {
   try {
-    const { whatsappNumber, storeName, storeEmail, storeAddress, imageInicio } = req.body
+    const { whatsappNumber, storeName, storeEmail, storeAddress, heroImages } = req.body
+
     let settings = await Settings.findOne()
     if (!settings) {
-      settings = await Settings.create({ whatsappNumber, storeName, storeEmail, storeAddress, imageInicio })
+      settings = await Settings.create({
+        whatsappNumber, storeName, storeEmail, storeAddress, heroImages
+      })
     } else {
       settings = await Settings.findByIdAndUpdate(
         settings._id,
-        { whatsappNumber, storeName, storeEmail, storeAddress, imageInicio },
+        { whatsappNumber, storeName, storeEmail, storeAddress, heroImages },
         { new: true, runValidators: true }
       )
     }
