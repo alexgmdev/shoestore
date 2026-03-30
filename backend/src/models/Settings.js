@@ -5,7 +5,10 @@ const settingsSchema = new mongoose.Schema({
   storeName: { type: String, default: 'ShoeStore' },
   storeEmail: String,
   storeAddress: String,
-  imageInicio: { type: String, default: 'https://cdn.shopify.com/s/files/1/0603/3031/1875/files/3_fd9d795a-401a-4576-8be8-77746b0374c0_1920x.jpg?=75&v=1706157678' }
+  heroImages: {
+  type: [String],
+  default: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900']
+}
 }, { timestamps: true })
 
 export default mongoose.model('Settings', settingsSchema)

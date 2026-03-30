@@ -1,23 +1,33 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useProductsStore } from '@/stores/products.store'
 import { useSettingsStore } from '@/stores/settings.store'
-import ProductCard from '@/components/product/ProductCard.vue'
 import { useCategoriesStore } from '@/stores/categories.store'
-
+import ProductCard from '@/components/product/ProductCard.vue'
 
 const productsStore = useProductsStore()
 const settingsStore = useSettingsStore()
 const categoriesStore = useCategoriesStore()
-onMounted(() => {
+
+const currentIndex = ref(0)
+let carouselInterval = null
+
+onMounted(async () => {
+  await settingsStore.fetchSettings()
   categoriesStore.fetchCategories()
   productsStore.fetchProducts({ limit: 6 })
+
+  carouselInterval = setInterval(() => {
+    if (settingsStore.heroImages?.length > 1) {
+      currentIndex.value = (currentIndex.value + 1) % settingsStore.heroImages.length
+    }
+  }, 4000)
 })
+
+onUnmounted(() => clearInterval(carouselInterval))
 </script>
 
 <template>
- 
-
   <main>
     <!-- Hero -->
     <section class="hero">
@@ -37,31 +47,49 @@ onMounted(() => {
           </a>
         </div>
       </div>
+
+      <!-- Carrusel -->
       <div class="hero__visual">
-        <img
-          :src="settingsStore.imageInicio"
-          alt="Zapato destacado"
-          class="hero__image"
-        />
+        <div class="hero__image-wrapper">
+          <Transition name="hero-fade" mode="out-in">
+            <img
+              :key="currentIndex"
+              :src="settingsStore.heroImages?.[currentIndex] || settingsStore.imageInicio"
+              alt="Zapato destacado"
+              class="hero__image"
+            />
+          </Transition>
+
+          <!-- Dots solo si hay más de 1 imagen -->
+          <div class="hero__dots" v-if="settingsStore.heroImages?.length > 1">
+            <button
+              v-for="(_, i) in settingsStore.heroImages"
+              :key="i"
+              :class="['hero__dot', { 'hero__dot--active': currentIndex === i }]"
+              @click="currentIndex = i"
+              :aria-label="`Imagen ${i + 1}`"
+            />
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Categorías -->
-<section class="categories">
-  <div class="section-container">
-    <h2 class="section-title">Explora por categoría</h2>
-    <div class="categories__grid">
-      <RouterLink
-        v-for="cat in categoriesStore.categories"
-        :key="cat._id"
-        :to="`/catalogo?category=${cat.name}`"
-        class="category-chip"
-      >
-        {{ cat.name }}
-      </RouterLink>
-    </div>
-  </div>
-</section>
+    <section class="categories">
+      <div class="section-container">
+        <h2 class="section-title">Explora por categoría</h2>
+        <div class="categories__grid">
+          <RouterLink
+            v-for="cat in categoriesStore.categories"
+            :key="cat._id"
+            :to="`/catalogo?category=${cat.name}`"
+            class="category-chip"
+          >
+            {{ cat.name }}
+          </RouterLink>
+        </div>
+      </div>
+    </section>
 
     <!-- Productos destacados -->
     <section class="featured">
@@ -102,12 +130,9 @@ onMounted(() => {
       </div>
     </section>
   </main>
-
-
 </template>
 
 <style scoped>
-/* Hero */
 .hero {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -150,18 +175,58 @@ onMounted(() => {
 
 .hero__actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
+/* Carrusel */
+.hero__visual { position: relative; }
+
+.hero__image-wrapper {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
 .hero__image {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
   border-radius: var(--radius-lg);
+  display: block;
 }
 
-.hero__visual {
-  position: relative;
+.hero__dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
 }
 
-/* Buttons */
+.hero__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.25);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 0;
+}
+
+.hero__dot--active {
+  background: var(--color-primary);
+  transform: scale(1.3);
+}
+
+/* Transición fade */
+.hero-fade-enter-active,
+.hero-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.hero-fade-enter-from,
+.hero-fade-leave-to { opacity: 0; }
+
+/* Botones */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -176,109 +241,29 @@ onMounted(() => {
   border: none;
 }
 
-.btn--primary {
-  background: var(--color-primary);
-  color: white;
-}
+.btn--primary { background: var(--color-primary); color: white; }
+.btn--primary:hover { background: var(--color-primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
-.btn--primary:hover {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
+.btn--outline { background: transparent; color: var(--color-primary); border: 1.5px solid var(--color-primary); }
+.btn--outline:hover { background: var(--color-primary); color: white; }
 
-.btn--outline {
-  background: transparent;
-  color: var(--color-primary);
-  border: 1.5px solid var(--color-primary);
-}
-
-.btn--outline:hover {
-  background: var(--color-primary);
-  color: white;
-}
-
-.btn--whatsapp {
-  background: #25D366;
-  color: white;
-  font-size: 1rem;
-}
-
-.btn--whatsapp:hover {
-  background: #1ebe57;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
+.btn--whatsapp { background: #25D366; color: white; font-size: 1rem; }
+.btn--whatsapp:hover { background: #1ebe57; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
 /* Sections */
-.section-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 64px 24px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-}
-
-.section-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-.section-link {
-  color: var(--color-text-muted);
-  text-decoration: none;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
+.section-container { max-width: 1200px; margin: 0 auto; padding: 64px 24px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+.section-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
+.section-link { color: var(--color-text-muted); text-decoration: none; font-weight: 500; transition: var(--transition); }
 .section-link:hover { color: var(--color-primary); }
 
-/* Categories */
 .categories { background: var(--color-surface); }
+.categories__grid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+.category-chip { padding: 10px 24px; border: 1.5px solid var(--color-border); border-radius: 999px; text-decoration: none; color: var(--color-text); font-weight: 500; transition: var(--transition); font-size: 0.9rem; }
+.category-chip:hover { background: var(--color-primary); color: white; border-color: var(--color-primary); }
 
-.categories__grid {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 24px;
-}
-
-.category-chip {
-  padding: 10px 24px;
-  border: 1.5px solid var(--color-border);
-  border-radius: 999px;
-  text-decoration: none;
-  color: var(--color-text);
-  font-weight: 500;
-  transition: var(--transition);
-  font-size: 0.9rem;
-}
-
-.category-chip:hover {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
-
-/* Products grid */
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-/* Skeleton loader */
-.loading-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.loading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 
 .skeleton-card {
   aspect-ratio: 0.85;
@@ -293,23 +278,7 @@ onMounted(() => {
   100% { background-position: -200% 0; }
 }
 
-/* CTA WhatsApp */
-.cta-whatsapp {
-  background: var(--color-primary);
-  color: white;
-  text-align: center;
-  padding: 80px 24px;
-}
-
-.cta-whatsapp__content h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.cta-whatsapp__content p {
-  color: rgba(255,255,255,0.75);
-  font-size: 1.1rem;
-  margin-bottom: 32px;
-}
+.cta-whatsapp { background: var(--color-primary); color: white; text-align: center; padding: 80px 24px; }
+.cta-whatsapp__content h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
+.cta-whatsapp__content p { color: rgba(255,255,255,0.75); font-size: 1.1rem; margin-bottom: 32px; }
 </style>

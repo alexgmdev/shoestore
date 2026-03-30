@@ -12,6 +12,8 @@ const router = useRouter()
 const productsStore = useProductsStore()
 const categoriesStore = useCategoriesStore()
 
+const filtersOpen = ref(false)
+
 const filters = ref({
   category: route.query.category || '',
   minPrice: route.query.minPrice || '',
@@ -58,13 +60,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  
+  <AppNavbar />
 
   <div class="catalog">
     <div class="catalog__container">
 
+      <!-- Toggle móvil -->
+      <button class="filters-toggle" @click="filtersOpen = !filtersOpen">
+        <span>🔧 Filtros{{ filters.category || filters.size || filters.minPrice || filters.maxPrice || filters.search ? ' (activos)' : '' }}</span>
+        <span>{{ filtersOpen ? '▲' : '▼' }}</span>
+      </button>
+
       <!-- Sidebar filtros -->
-      <aside class="filters" aria-label="Filtros">
+      <aside class="filters" :class="{ 'filters--open': filtersOpen }" aria-label="Filtros">
         <div class="filters__header">
           <h2 class="filters__title">Filtros</h2>
           <button class="filters__clear" @click="clearFilters">Limpiar todo</button>
@@ -86,15 +94,8 @@ onMounted(async () => {
         <!-- Categorías dinámicas -->
         <div class="filter-group">
           <label class="filter-label">Categoría</label>
-
-          <div v-if="categoriesStore.loading" class="filter-loading">
-            Cargando...
-          </div>
-
-          <div v-else-if="categoriesStore.categories.length === 0" class="filter-empty">
-            Sin categorías
-          </div>
-
+          <div v-if="categoriesStore.loading" class="filter-loading">Cargando...</div>
+          <div v-else-if="categoriesStore.categories.length === 0" class="filter-empty">Sin categorías</div>
           <div v-else class="filter-options">
             <button
               v-for="cat in categoriesStore.categories"
@@ -151,19 +152,19 @@ onMounted(async () => {
           <div class="active-filters__list">
             <span v-if="filters.category" class="active-tag">
               {{ filters.category }}
-              <button @click="filters.category = ''; applyFilters()" aria-label="Quitar filtro">✕</button>
+              <button @click="filters.category = ''; applyFilters()">✕</button>
             </span>
             <span v-if="filters.size" class="active-tag">
               Talla {{ filters.size }}
-              <button @click="filters.size = ''; applyFilters()" aria-label="Quitar filtro">✕</button>
+              <button @click="filters.size = ''; applyFilters()">✕</button>
             </span>
             <span v-if="filters.minPrice" class="active-tag">
               Desde ${{ Number(filters.minPrice).toLocaleString('es-CO') }}
-              <button @click="filters.minPrice = ''; applyFilters()" aria-label="Quitar filtro">✕</button>
+              <button @click="filters.minPrice = ''; applyFilters()">✕</button>
             </span>
             <span v-if="filters.maxPrice" class="active-tag">
               Hasta ${{ Number(filters.maxPrice).toLocaleString('es-CO') }}
-              <button @click="filters.maxPrice = ''; applyFilters()" aria-label="Quitar filtro">✕</button>
+              <button @click="filters.maxPrice = ''; applyFilters()">✕</button>
             </span>
           </div>
         </div>
@@ -178,19 +179,16 @@ onMounted(async () => {
           <span class="catalog__count">{{ productsStore.total }} productos</span>
         </div>
 
-        <!-- Loading -->
         <div v-if="productsStore.loading" class="loading-grid">
           <div v-for="i in 9" :key="i" class="skeleton-card"></div>
         </div>
 
-        <!-- Sin resultados -->
         <div v-else-if="productsStore.products.length === 0" class="empty-state">
           <p class="empty-state__icon">😕</p>
           <p class="empty-state__text">No encontramos productos con esos filtros.</p>
           <button class="btn-clear" @click="clearFilters">Limpiar filtros</button>
         </div>
 
-        <!-- Grid productos -->
         <div v-else class="products-grid">
           <ProductCard
             v-for="product in productsStore.products"
@@ -199,7 +197,6 @@ onMounted(async () => {
           />
         </div>
 
-        <!-- Paginación -->
         <div v-if="productsStore.pages > 1" class="pagination">
           <button
             v-for="page in productsStore.pages"
@@ -214,7 +211,7 @@ onMounted(async () => {
     </div>
   </div>
 
-  
+  <AppFooter />
 </template>
 
 <style scoped>
@@ -229,8 +226,9 @@ onMounted(async () => {
   gap: 40px;
 }
 
-@media (max-width: 768px) {
-  .catalog__container { grid-template-columns: 1fr; }
+/* Toggle móvil — oculto en desktop */
+.filters-toggle {
+  display: none;
 }
 
 /* Sidebar */
@@ -285,6 +283,7 @@ onMounted(async () => {
   font-size: 0.9rem;
   transition: var(--transition);
   font-family: var(--font-sans);
+  box-sizing: border-box;
 }
 
 .filter-input:focus { border-color: var(--color-primary); outline: none; }
@@ -340,7 +339,6 @@ onMounted(async () => {
   padding: 4px 0;
 }
 
-/* Filtros activos */
 .active-filters { margin-top: -8px; }
 .active-filters__list { display: flex; flex-wrap: wrap; gap: 6px; }
 
@@ -405,12 +403,7 @@ onMounted(async () => {
   100% { background-position: -200% 0; }
 }
 
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 80px 24px;
-}
-
+.empty-state { text-align: center; padding: 80px 24px; }
 .empty-state__icon { font-size: 3rem; margin-bottom: 12px; }
 .empty-state__text { color: var(--color-text-muted); margin-bottom: 20px; font-size: 1rem; }
 
@@ -428,7 +421,6 @@ onMounted(async () => {
 
 .btn-clear:hover { background: var(--color-primary-hover); }
 
-/* Paginación */
 .pagination {
   display: flex;
   gap: 8px;
@@ -454,5 +446,45 @@ onMounted(async () => {
   background: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
+}
+
+/* ─── MÓVIL ─────────────────────────────── */
+@media (max-width: 768px) {
+  .catalog__container {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .filters-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 14px 20px;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    margin-bottom: 16px;
+    box-sizing: border-box;
+  }
+
+  .filters {
+    display: none;
+    position: static;  /* ← quita el sticky en móvil */
+    margin-bottom: 20px;
+  }
+
+  .filters--open {
+    display: block;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
 }
 </style>
