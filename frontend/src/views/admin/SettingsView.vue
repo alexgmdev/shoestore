@@ -15,7 +15,8 @@ const form = ref({
 })
 const saving = ref(false)
 
-onMounted(() => {
+onMounted(async() => {
+  await settingsStore.fetchSettings()
   form.value = {
     whatsappNumber: settingsStore.whatsappNumber,
     storeName: settingsStore.storeName,
@@ -23,7 +24,7 @@ onMounted(() => {
     storeAddress: settingsStore.storeAddress,
     heroImages: settingsStore.heroImages?.length
       ? [...settingsStore.heroImages]
-      : [settingsStore.imageInicio || '']
+      : ['']
   }
 })
 

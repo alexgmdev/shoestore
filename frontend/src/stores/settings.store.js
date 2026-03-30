@@ -3,13 +3,11 @@ import { ref, computed } from 'vue'  // ← agrega computed aquí
 import api from '@/services/api'
 
 export const useSettingsStore = defineStore('settings', () => {
-  const whatsappNumber = ref('573185923836')
-  const storeName = ref('ShoeStore')
+  const whatsappNumber = ref('')
+  const storeName = ref('')
   const storeEmail = ref('')
   const storeAddress = ref('')
-  const heroImages = ref([
-    'https://cdn.shopify.com/s/files/1/0603/3031/1875/files/1_ff9bcd78-3d95-4f78-99ac-b858e330c6af_750x.jpg?=75&v=1706157679'
-  ])
+  const heroImages = ref([])
   const currentHeroIndex = ref(0)
 
   const currentHeroImage = computed(() =>
@@ -35,7 +33,9 @@ export const useSettingsStore = defineStore('settings', () => {
     storeName.value = data.storeName
     storeEmail.value = data.storeEmail
     storeAddress.value = data.storeAddress
-    heroImages.value = data.heroImages
+     heroImages.value = Array.isArray(data.heroImages) && data.heroImages.length
+    ? data.heroImages
+    : [data.imageInicio || ''] 
   }
 
   return {
