@@ -60,7 +60,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <AppNavbar />
+  
 
   <div class="catalog">
     <div class="catalog__container">
@@ -211,7 +211,7 @@ onMounted(async () => {
     </div>
   </div>
 
-  <AppFooter />
+  
 </template>
 
 <style scoped>
