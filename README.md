@@ -181,53 +181,53 @@ Configura las mismas variables en los paneles de Vercel (frontend) y Railway (ba
 
 ---
 
-## 📡 API Endpoints
+##  API Endpoints
 
 ### Autenticación
 
 | Método | Endpoint | Descripción | Auth |
 |---|---|---|---|
-| `POST` | `/api/auth/login` | Login de usuario | ❌ |
-| `POST` | `/api/auth/register` | Registro (admin only) | ✅ Admin |
-| `GET` | `/api/auth/me` | Perfil del usuario actual | ✅ |
+| `POST` | `/api/auth/login` | Login de usuario | 
+| `POST` | `/api/auth/register` | Registro (admin only) | Admin |
+| `GET` | `/api/auth/me` | Perfil del usuario actual |  
 
 ### Productos
 
 | Método | Endpoint | Descripción | Auth |
 |---|---|---|---|
-| `GET` | `/api/products` | Listar productos (filtros: category, limit, search) | ❌ |
-| `GET` | `/api/products/:id` | Obtener producto por ID | ❌ |
-| `POST` | `/api/products` | Crear producto | ✅ Admin |
-| `PUT` | `/api/products/:id` | Actualizar producto | ✅ Admin |
-| `DELETE` | `/api/products/:id` | Eliminar producto | ✅ Admin |
+| `GET` | `/api/products` | Listar productos (filtros: category, limit, search) | 
+| `GET` | `/api/products/:id` | Obtener producto por ID |
+| `POST` | `/api/products` | Crear producto |  Admin |
+| `PUT` | `/api/products/:id` | Actualizar producto | Admin |
+| `DELETE` | `/api/products/:id` | Eliminar producto | Admin |
 
 ### Categorías
 
 | Método | Endpoint | Descripción | Auth |
 |---|---|---|---|
-| `GET` | `/api/categories` | Listar categorías | ❌ |
-| `POST` | `/api/categories` | Crear categoría | ✅ Admin |
-| `PUT` | `/api/categories/:id` | Actualizar categoría | ✅ Admin |
-| `DELETE` | `/api/categories/:id` | Eliminar categoría | ✅ Admin |
+| `GET` | `/api/categories` | Listar categorías |  |
+| `POST` | `/api/categories` | Crear categoría | Admin |
+| `PUT` | `/api/categories/:id` | Actualizar categoría | Admin |
+| `DELETE` | `/api/categories/:id` | Eliminar categoría | Admin |
 
 ### Usuarios
 
 | Método | Endpoint | Descripción | Auth |
 |---|---|---|---|
-| `GET` | `/api/users` | Listar usuarios | ✅ Admin |
-| `PUT` | `/api/users/:id` | Actualizar usuario | ✅ Admin |
-| `DELETE` | `/api/users/:id` | Eliminar usuario | ✅ Admin |
+| `GET` | `/api/users` | Listar usuarios | Admin |
+| `PUT` | `/api/users/:id` | Actualizar usuario | Admin |
+| `DELETE` | `/api/users/:id` | Eliminar usuario | Admin |
 
 ### Configuración
 
 | Método | Endpoint | Descripción | Auth |
 |---|---|---|---|
-| `GET` | `/api/settings` | Obtener configuración de la tienda | ❌ |
-| `PUT` | `/api/settings` | Actualizar configuración | ✅ Admin |
+| `GET` | `/api/settings` | Obtener configuración de la tienda |  |
+| `PUT` | `/api/settings` | Actualizar configuración | Admin |
 
 ---
 
-## 🔐 Autenticación
+##  Autenticación
 
 El sistema usa **JWT (JSON Web Tokens)**:
 
@@ -264,7 +264,7 @@ router.beforeEach((to, from, next) => {
 
 ---
 
-## 🖥️ Vistas del Cliente
+##  Vistas del Cliente
 
 ### Home (`/`)
 - Carrusel hero con imágenes configurables desde el panel admin
@@ -280,7 +280,7 @@ router.beforeEach((to, from, next) => {
 
 ---
 
-## 🔧 Panel de Administración
+##  Panel de Administración
 
 Accesible en `/admin` (requiere rol `admin`).
 
@@ -294,7 +294,7 @@ Accesible en `/admin` (requiere rol `admin`).
 
 ---
 
-## 🚀 Deploy
+##  Deploy
 
 ### Frontend → Vercel
 
@@ -310,6 +310,6 @@ Accesible en `/admin` (requiere rol `admin`).
 4. Railway redeploya automáticamente en cada push a `main`
 
 
-## 📄 Licencia
+##  Licencia
 
 MIT
